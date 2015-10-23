@@ -1,0 +1,9 @@
+mavenJob('customer-service') {
+    logRotator(-1, 10)
+    scm {
+        github('seelmann/customer-management-service', 'master')
+    }
+    rootPOM('customer-service/pom.xml')
+    goals('clean install')
+}
+
