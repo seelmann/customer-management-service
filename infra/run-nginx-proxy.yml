@@ -1,0 +1,38 @@
+---
+- hosts: all
+
+  tasks:
+    - name: Check if nginx-proxy container is running
+      shell: docker ps | grep nginx-proxy
+      register: result
+      ignore_errors: True
+
+    - name: Stop nginx-proxy
+      shell: docker stop nginx-proxy
+      when: result|success
+
+    - name: Check if nginx-proxy container exists
+      shell: docker ps -a -f status=exited | grep nginx-proxy
+      register: result
+      ignore_errors: True
+
+    - name: Delete nginx-proxy
+      shell: docker rm nginx-proxy
+      when: result|success
+
+#    - name: Copy configuration
+#      copy: src=data/nginx-proxy dest=/data
+
+    - name: Create data directory
+      file: path=/data/nginx-proxy/htpasswd state=directory mode=0755
+
+    - name: Create jenkins htpasswd
+      template: src=templates/nginx-proxy/htpasswd.j2 dest=/data/nginx-proxy/htpasswd/jenkins.{{inventory_hostname}}
+
+    - name: Run nginx-proxy
+      shell: >
+        docker run -d --name nginx-proxy -p 80:80 
+        -v /data/nginx-proxy/htpasswd:/etc/nginx/htpasswd 
+        -v /var/run/docker.sock:/tmp/docker.sock:ro 
+        jwilder/nginx-proxy
+

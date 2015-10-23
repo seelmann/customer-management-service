@@ -1,0 +1,42 @@
+---
+- hosts: all
+
+  tasks:
+    - name: Check if jenkins container is running
+      shell: docker ps | grep jenkins
+      register: result
+      ignore_errors: True
+
+    - name: Stop jenkins
+      shell: docker stop jenkins
+      when: result|success
+
+    - name: Check if jenkins container exists
+      shell: docker ps -a -f status=exited | grep jenkins
+      register: result
+      ignore_errors: True
+
+    - name: Delete jenkins
+      shell: docker rm jenkins
+      when: result|success
+
+    - name: Copy dockerfile
+      copy: src=docker/jenkins dest=/data/docker
+
+    - name: Copy seed job config
+      template: src=templates/jenkins/seed-config.j2 dest=/data/docker/jenkins/config/jobs/seed/config.xml
+
+    - name: Build jenkins image
+      shell: docker build -t my-jenkins .
+      args:
+        chdir: /data/docker/jenkins
+
+    - name: Run jenkins
+      shell: >
+        docker run -d --name jenkins -u root
+        -v /var/run/docker.sock:/var/run/docker.sock:ro 
+        -e VIRTUAL_HOST=jenkins.{{inventory_hostname}}
+        -e VIRTUAL_PORT=8080 
+        my-jenkins
+
+
