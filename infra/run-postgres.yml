@@ -1,0 +1,25 @@
+---
+- hosts: all
+
+  tasks:
+    - name: Check if postgres container is running
+      shell: docker ps | grep postgres
+      register: result
+      ignore_errors: True
+
+    - name: Stop postgres
+      shell: docker stop postgres
+      when: result|success
+
+    - name: Check if postgres container exists
+      shell: docker ps -a -f status=exited | grep postgres
+      register: result
+      ignore_errors: True
+
+    - name: Delete postgres
+      shell: docker rm postgres
+      when: result|success
+
+    - name: Run postgres
+      shell: docker run -d --name postgres postgres:9
+
