@@ -37,4 +37,11 @@ public class CustomerService {
         return repository.save(customer);
     }
 
+    public void delete(Long id) {
+        if (!repository.exists(id)) {
+            throw new NoSuchElementException();
+        }
+        repository.delete(id);
+    }
+
 }

@@ -245,12 +245,46 @@ public class CustomerControllerIT {
     public void testPutInvalidBodyShouldReturn400() {
         given(spec)
         .when()
-        .contentType("application/json")
-        .body("{invalid}")
-        .put("/customers/5")
+            .contentType("application/json")
+            .body("{invalid}")
+            .put("/customers/5")
         .then()
-        .statusCode(400)
-        .header("Content-Length", "0")
+            .statusCode(400)
+            .header("Content-Length", "0")
+        ;
+    }
+
+    @Test
+    public void testDeleteOK() {
+        Long id = repository.save(DemoData.c1()).getId();
+
+        given(spec)
+        .when()
+            .delete("/customers/" + id)
+        .then()
+            .statusCode(204)
+        ;
+
+        // assert the customer was deleted in DB
+        assertThat(repository.exists(id), equalTo(false));
+
+        // assert the deleted customer can not be retrieved via API
+        given(spec)
+        .when()
+            .accept("application/json")
+            .get("/customers/" + id)
+        .then()
+            .statusCode(404)
+        ;
+    }
+
+    @Test
+    public void testDeleteNonExistingReturn404() {
+        given(spec)
+        .when()
+            .delete("/customers/" + Long.MAX_VALUE)
+        .then()
+            .statusCode(404)
         ;
     }
 
