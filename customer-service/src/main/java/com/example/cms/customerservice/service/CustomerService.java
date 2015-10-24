@@ -13,6 +13,10 @@ public class CustomerService {
     @Autowired
     private CustomerRepository repository;
 
+    public Iterable<Customer> getAll() {
+        return repository.findAll();
+    }
+
     public Customer get(Long id) {
         Customer customer = repository.findOne(id);
         if (customer == null) {

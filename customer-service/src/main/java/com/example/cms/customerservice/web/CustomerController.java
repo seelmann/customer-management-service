@@ -24,6 +24,12 @@ public class CustomerController {
     @Autowired
     private CustomerService service;
 
+    @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Iterable<Customer>> getAllCustomers() {
+        Iterable<Customer> customers = service.getAll();
+        return new ResponseEntity<>(customers, HttpStatus.OK);
+    }
+
     @RequestMapping(method = RequestMethod.GET, value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Customer> getCustomer(@PathVariable Long id) {
         Customer customer = service.get(id);

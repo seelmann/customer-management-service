@@ -2,6 +2,7 @@ package com.example.cms.customerservice.web;
 
 import static com.jayway.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
@@ -47,8 +48,40 @@ public class CustomerControllerIT {
     }
 
     @Test
+    public void testGetAllOK() {
+        Customer customer = DemoData.c1();
+        int NUM = 1001;
+        for(int i=0; i<NUM; i++) {
+            repository.save(DemoData.c1());
+        }
+
+        given(spec)
+        .when()
+            .accept("application/json")
+            .get("/customers")
+        .then()
+            .statusCode(200)
+            .contentType("application/json;charset=UTF-8")
+            .body("", hasSize(1001))
+            .body("[0].id", notNullValue())
+            .body("[0].firstname", equalTo(customer.getFirstname()))
+            .body("[0].lastname", equalTo(customer.getLastname()))
+            .body("[0].age", equalTo(customer.getAge()))
+            .body("[0].emailAddress", equalTo(customer.getEmailAddress()))
+            .body("[0].privateAddress.street", equalTo(customer.getPrivateAddress().getStreet()))
+            .body("[0].privateAddress.city", equalTo(customer.getPrivateAddress().getCity()))
+            .body("[0].privateAddress.zipCode", equalTo(customer.getPrivateAddress().getZipCode()))
+            .body("[0].privateAddress.country", equalTo(customer.getPrivateAddress().getCountry()))
+            .body("[0].companyAddress.street", equalTo(customer.getCompanyAddress().getStreet()))
+            .body("[0].companyAddress.city", equalTo(customer.getCompanyAddress().getCity()))
+            .body("[0].companyAddress.zipCode", equalTo(customer.getCompanyAddress().getZipCode()))
+            .body("[0].companyAddress.country", equalTo(customer.getCompanyAddress().getCountry()))
+        ;
+    }
+
+    @Test
     public void testGetOneOK() {
-        Customer customer = DemoData.C2;
+        Customer customer = DemoData.c2();
         Long id = repository.save(customer).getId();
 
         given(spec)
@@ -100,11 +133,12 @@ public class CustomerControllerIT {
 
     @Test
     public void testPostOK() {
-        Customer customer = DemoData.C1;
+        Customer customer = DemoData.c1();
 
         ExtractableResponse<Response> response =
         given(spec)
         .when()
+        .log().all()
             .contentType("application/json")
             .body(customer)
             .post("/customers")
@@ -131,7 +165,7 @@ public class CustomerControllerIT {
 
     @Test
     public void testPostToResourceShouldReturn405() {
-        Customer customer = DemoData.C1;
+        Customer customer = DemoData.c1();
 
         given(spec)
         .when()

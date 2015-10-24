@@ -27,7 +27,7 @@ public class CustomerRepositoryIT {
     public void testRoundtrip() {
         assertThat(repository.count(), equalTo(0L));
 
-        Customer customer = repository.save(DemoData.C1);
+        Customer customer = repository.save(DemoData.c1());
         assertThat(customer, notNullValue());
         assertThat(customer.getId(), notNullValue());
         assertThat(repository.count(), equalTo(1L));
