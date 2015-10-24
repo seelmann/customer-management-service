@@ -29,4 +29,12 @@ public class CustomerService {
         return repository.save(customer);
     }
 
+    public Customer update(Long id, Customer customer) {
+        if (!repository.exists(id)) {
+            throw new NoSuchElementException();
+        }
+        customer.setId(id);
+        return repository.save(customer);
+    }
+
 }

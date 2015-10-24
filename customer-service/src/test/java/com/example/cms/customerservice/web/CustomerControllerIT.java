@@ -3,7 +3,6 @@ package com.example.cms.customerservice.web;
 import static com.jayway.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
@@ -138,7 +137,6 @@ public class CustomerControllerIT {
         ExtractableResponse<Response> response =
         given(spec)
         .when()
-        .log().all()
             .contentType("application/json")
             .body(customer)
             .post("/customers")
@@ -149,10 +147,14 @@ public class CustomerControllerIT {
             .extract()
         ;
 
+        // assert the customer exists in DB
         String location = response.headers().get("Location").getValue();
         String id = location.substring(location.lastIndexOf("/") + 1);
-        assertThat(repository.exists(Long.valueOf(id)), is(true));
+        assertThat(repository.exists(Long.valueOf(id)), equalTo(true));
+        assertEqual(customer, repository.findOne(Long.valueOf(id)));
 
+        // assert the location return the customer
+        Customer receivedCustomer = 
         given(spec)
         .when()
             .accept("application/json")
@@ -160,7 +162,9 @@ public class CustomerControllerIT {
         .then()
             .statusCode(200)
             .contentType("application/json;charset=UTF-8")
+            .extract().as(Customer.class)
         ;
+        assertEqual(customer, receivedCustomer);
     }
 
     @Test
@@ -191,4 +195,77 @@ public class CustomerControllerIT {
         ;
     }
 
+    @Test
+    public void testPutOK() {
+        Customer original = DemoData.c1();
+        Long id = repository.save(original).getId();
+
+        Customer modified = DemoData.c2();
+
+        given(spec)
+        .when()
+            .contentType("application/json")
+            .body(modified)
+            .put("/customers/" + id)
+        .then()
+            .statusCode(204)
+        ;
+
+        // assert the customer was updated in DB
+        assertEqual(modified, repository.findOne(id));
+
+        // assert the modificated customer can be retrieved via API
+        Customer receivedCustomer = 
+        given(spec)
+        .when()
+            .accept("application/json")
+            .get("/customers/" + id)
+        .then()
+            .statusCode(200)
+            .contentType("application/json;charset=UTF-8")
+            .extract().as(Customer.class)
+        ;
+        assertEqual(modified, receivedCustomer);
+    }
+
+    @Test
+    public void testPutNonExistingReturn404() {
+        given(spec)
+        .when()
+            .contentType("application/json")
+            .body(DemoData.c1())
+            .put("/customers/" + Long.MAX_VALUE)
+        .then()
+            .statusCode(404)
+            .header("Content-Length", "0")
+        ;
+    }
+
+    @Test
+    public void testPutInvalidBodyShouldReturn400() {
+        given(spec)
+        .when()
+        .contentType("application/json")
+        .body("{invalid}")
+        .put("/customers/5")
+        .then()
+        .statusCode(400)
+        .header("Content-Length", "0")
+        ;
+    }
+
+    private void assertEqual(Customer expected, Customer actual) {
+        assertThat(actual.getFirstname(), equalTo(expected.getFirstname()));
+        assertThat(actual.getLastname(), equalTo(expected.getLastname()));
+        assertThat(actual.getEmailAddress(), equalTo(expected.getEmailAddress()));
+        assertThat(actual.getAge(), equalTo(expected.getAge()));
+        assertThat(actual.getPrivateAddress().getStreet(), equalTo(expected.getPrivateAddress().getStreet()));
+        assertThat(actual.getPrivateAddress().getCity(), equalTo(expected.getPrivateAddress().getCity()));
+        assertThat(actual.getPrivateAddress().getZipCode(), equalTo(expected.getPrivateAddress().getZipCode()));
+        assertThat(actual.getPrivateAddress().getCountry(), equalTo(expected.getPrivateAddress().getCountry()));
+        assertThat(actual.getCompanyAddress().getStreet(), equalTo(expected.getCompanyAddress().getStreet()));
+        assertThat(actual.getCompanyAddress().getCity(), equalTo(expected.getCompanyAddress().getCity()));
+        assertThat(actual.getCompanyAddress().getZipCode(), equalTo(expected.getCompanyAddress().getZipCode()));
+        assertThat(actual.getCompanyAddress().getCountry(), equalTo(expected.getCompanyAddress().getCountry()));
+    }
 }

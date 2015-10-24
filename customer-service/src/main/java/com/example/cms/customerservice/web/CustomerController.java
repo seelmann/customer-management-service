@@ -36,7 +36,7 @@ public class CustomerController {
         return new ResponseEntity<>(customer, HttpStatus.OK);
     }
 
-    @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Customer> createCustomer(@RequestBody Customer customer, UriComponentsBuilder ucb) {
         Customer createdCustomer = service.create(customer);
 
@@ -44,8 +44,13 @@ public class CustomerController {
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(uri);
 
-        ResponseEntity<Customer> responseEntity = new ResponseEntity<>(headers, HttpStatus.CREATED);
-        return responseEntity;
+        return new ResponseEntity<>(headers, HttpStatus.CREATED);
+    }
+
+    @RequestMapping(method = RequestMethod.PUT, value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Customer> updateCustomer(@PathVariable Long id, @RequestBody Customer customer) {
+        service.update(id, customer);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
 }
