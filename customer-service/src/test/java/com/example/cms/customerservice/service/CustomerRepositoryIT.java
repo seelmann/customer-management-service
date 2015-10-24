@@ -17,7 +17,7 @@ import com.example.cms.customerservice.domain.Customer;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = Application.class)
-@TestPropertySource(locations="classpath:${test.properties}")
+@TestPropertySource(locations="classpath:${test.properties:test-hsql.properties}")
 public class CustomerRepositoryIT {
 
     @Autowired

@@ -1,5 +1,7 @@
 package com.example.cms.customerservice.service;
 
+import java.util.NoSuchElementException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,7 +14,15 @@ public class CustomerService {
     private CustomerRepository repository;
 
     public Customer get(Long id) {
-        return repository.findOne(id);
+        Customer customer = repository.findOne(id);
+        if (customer == null) {
+            throw new NoSuchElementException();
+        }
+        return customer;
+    }
+
+    public Customer create(Customer customer) {
+        return repository.save(customer);
     }
 
 }

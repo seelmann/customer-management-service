@@ -2,6 +2,9 @@ package com.example.cms.customerservice.web;
 
 import static com.jayway.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.Assert.assertThat;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -18,11 +21,13 @@ import com.example.cms.customerservice.DemoData;
 import com.example.cms.customerservice.domain.Customer;
 import com.example.cms.customerservice.service.CustomerRepository;
 import com.jayway.restassured.builder.RequestSpecBuilder;
+import com.jayway.restassured.response.ExtractableResponse;
+import com.jayway.restassured.response.Response;
 import com.jayway.restassured.specification.RequestSpecification;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = Application.class)
-@TestPropertySource(locations="classpath:${test.properties}")
+@TestPropertySource(locations="classpath:${test.properties:test-hsql.properties}")
 @WebIntegrationTest({ "server.port=0" })
 public class CustomerControllerIT {
 
@@ -42,7 +47,7 @@ public class CustomerControllerIT {
     }
 
     @Test
-    public void testGetRequest() throws Exception {
+    public void testGetOneOK() {
         Customer customer = DemoData.C2;
         Long id = repository.save(customer).getId();
 
@@ -53,6 +58,7 @@ public class CustomerControllerIT {
         .then()
             .statusCode(200)
             .contentType("application/json;charset=UTF-8")
+            .body("id", notNullValue())
             .body("firstname", equalTo(customer.getFirstname()))
             .body("lastname", equalTo(customer.getLastname()))
             .body("age", equalTo(customer.getAge()))
@@ -65,6 +71,89 @@ public class CustomerControllerIT {
             .body("companyAddress.city", equalTo(customer.getCompanyAddress().getCity()))
             .body("companyAddress.zipCode", equalTo(customer.getCompanyAddress().getZipCode()))
             .body("companyAddress.country", equalTo(customer.getCompanyAddress().getCountry()))
+        ;
+    }
+
+    @Test
+    public void testGetOneNonExistingCustomerShouldReturn404() {
+        given(spec)
+        .when()
+            .accept("application/json")
+            .get("/customers/" + Long.MAX_VALUE)
+        .then()
+            .statusCode(404)
+            .header("Content-Length", "0")
+        ;
+    }
+
+    @Test
+    public void testGetOndBadRequestShouldReturn400() {
+        given(spec)
+        .when()
+            .accept("application/json")
+            .get("/customers/invalid")
+        .then()
+            .statusCode(400)
+            .header("Content-Length", "0")
+        ;
+    }
+
+    @Test
+    public void testPostOK() {
+        Customer customer = DemoData.C1;
+
+        ExtractableResponse<Response> response =
+        given(spec)
+        .when()
+            .contentType("application/json")
+            .body(customer)
+            .post("/customers")
+        .then()
+            .statusCode(201)
+            .header("Location", notNullValue())
+            .header("Content-Length", "0")
+            .extract()
+        ;
+
+        String location = response.headers().get("Location").getValue();
+        String id = location.substring(location.lastIndexOf("/") + 1);
+        assertThat(repository.exists(Long.valueOf(id)), is(true));
+
+        given(spec)
+        .when()
+            .accept("application/json")
+            .get(location)
+        .then()
+            .statusCode(200)
+            .contentType("application/json;charset=UTF-8")
+        ;
+    }
+
+    @Test
+    public void testPostToResourceShouldReturn405() {
+        Customer customer = DemoData.C1;
+
+        given(spec)
+        .when()
+            .contentType("application/json")
+            .body(customer)
+            .post("/customers/4")
+        .then()
+            .statusCode(405)
+            .header("Content-Length", "0")
+        ;
+    }
+
+    @Test
+    public void testPostInvalidBodyShouldReturn400() {
+        given(spec)
+        .when()
+            .contentType("application/json")
+            .body("{invalid}")
+            .post("/customers")
+        .then()
+            .statusCode(400)
+            .header("Content-Length", "0")
         ;
     }
 
