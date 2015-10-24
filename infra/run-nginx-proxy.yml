@@ -20,14 +20,14 @@
       shell: docker rm nginx-proxy
       when: result|success
 
-#    - name: Copy configuration
-#      copy: src=data/nginx-proxy dest=/data
-
     - name: Create data directory
       file: path=/data/nginx-proxy/htpasswd state=directory mode=0755
 
     - name: Create jenkins htpasswd
       template: src=templates/nginx-proxy/htpasswd.j2 dest=/data/nginx-proxy/htpasswd/jenkins.{{inventory_hostname}}
+
+    - name: Create customer-service htpasswd
+      template: src=templates/nginx-proxy/htpasswd.j2 dest=/data/nginx-proxy/htpasswd/customer-service.{{inventory_hostname}}
 
     - name: Run nginx-proxy
       shell: >
