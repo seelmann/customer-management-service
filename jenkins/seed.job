@@ -1,9 +1,33 @@
-mavenJob('customer-service') {
+mavenJob('customer-service-build') {
     logRotator(-1, 10)
     scm {
         github('seelmann/customer-management-service', 'master')
     }
+    mavenInstallation('Maven 3.3.3')
     rootPOM('customer-service/pom.xml')
-    goals('clean install')
+    goals('clean install -Dall-checks')
 }
-
+freeStyleJob('customer-service-deploy') {
+    logRotator(-1, 10)
+    scm {
+        github('seelmann/customer-management-service', 'master')
+    }
+    steps {
+        maven {
+            mavenInstallation('Maven 3.3.3')
+            rootPOM('customer-service/pom.xml')
+            goals('clean install -Dall-checks')
+        }
+        shell('''
+cd customer-service
+docker build -t example/customer-service .
+docker ps | grep customer-service && docker stop customer-service
+docker ps -a -f status=exited | grep customer-service && docker rm customer-service
+docker run -d --name customer-service \\
+  --link postgres:postgres \\
+  -e VIRTUAL_HOST=customer-service.blue.s12n.de \\
+  -e VIRTUAL_PORT=8080 \\
+  example/customer-service
+''')
+    }
+}
