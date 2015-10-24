@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.WebIntegrationTest;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.example.cms.customerservice.Application;
@@ -21,8 +22,9 @@ import com.jayway.restassured.specification.RequestSpecification;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = Application.class)
+@TestPropertySource(locations="classpath:${test.properties}")
 @WebIntegrationTest({ "server.port=0" })
-public class CustomerControllerTest {
+public class CustomerControllerIT {
 
     @Value("${local.server.port}")
     private int port;
