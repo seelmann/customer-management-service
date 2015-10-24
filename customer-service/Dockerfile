@@ -1,0 +1,16 @@
+FROM java:8
+
+COPY target/customer-service-*.jar /customer-service.jar
+
+ENV SPRING_JPA_DATABASE=POSTGRESQL
+ENV SPRING_JPA_SHOW_SQL=false
+ENV SPRING_JPA_HIBERNATE_DDL_AUTO=update
+ENV SPRING_DATABASE_DRIVERCLASSNAME=org.postgresql.Driver
+ENV SPRING_DATASOURCE_PLATFORM=postgres
+ENV SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/postgres
+ENV SPRING_DATASOURCE_USERNAME=postgres
+ENV SPRING_DATASOURCE_PASSWORD=postgres
+
+EXPOSE 8080
+
+CMD java -jar /customer-service.jar
