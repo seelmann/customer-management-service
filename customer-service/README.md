@@ -49,3 +49,18 @@ This profile enables additional checks and lets the build fail on violations:
 * Forbidden APIs
 
 
+Deployment
+----------
+
+Continuous integration and deployment is done by Jenkins, see [seed.job](../jenkins/seed.job) for job configuration.
+
+Job `customer-service-build` builds the project. Currently it polls Github because the Jenkins instance is not accessible from Github hence no webhook can be used.
+
+Job `customer-service-deploy` build the project, builds a (local) Docker image, and (re-)starts the customer-service container. Afterwards the service is accessible at [http://customer-service.blue.s12n.de/customers](http://customer-service.blue.s12n.de/customers).
+
+
+Usage
+-----
+
+See [customer-service-client](../customer-service-client).
+
