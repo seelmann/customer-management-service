@@ -18,12 +18,12 @@ This runs the tests and  creates an executable JAR in `target` folder.
 Additional profiles are available.
 
 
-#### `test-hsql`
+#### test-hsql
 
 This profile is active by default. It runs the tests against an in-memory HSQL database.
 
 
-#### `test-postgresql`
+#### test-postgresql
 
 This profile is activated with property `-Dtest-postgresql` and automatically deactivates the test-hsql profile:
 
@@ -35,7 +35,7 @@ and in `post-integration-test` phase the container is stopped and deleted.
 Docker needs to be installed to run this profile.
 
 
-#### `all-checks`
+#### all-checks
 
 This profile is activated with property `-Dall-checks`:
 
