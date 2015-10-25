@@ -1,7 +1,7 @@
 Infrastructure
 ==============
 
-Ansible playbooks and Docker containers to setup the Customer Service infrastructure. Precondition is a Debian 8 server accessible via SSH.
+Ansible playbooks and Dockerfile to setup the Customer Service infrastructure. Tested on Debian 8 server accessible via SSH.
 
 Description of the playbooks:
 
