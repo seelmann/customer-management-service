@@ -2,6 +2,8 @@ package com.example.cms.customerservice.web;
 
 import java.net.URI;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -37,7 +39,7 @@ public class CustomerController {
     }
 
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Customer> createCustomer(@RequestBody Customer customer, UriComponentsBuilder ucb) {
+    public ResponseEntity<Customer> createCustomer(@Valid @RequestBody Customer customer, UriComponentsBuilder ucb) {
         Customer createdCustomer = service.create(customer);
 
         URI uri = ucb.path("/customers/").path(createdCustomer.getId().toString()).build().toUri();
@@ -48,7 +50,7 @@ public class CustomerController {
     }
 
     @RequestMapping(method = RequestMethod.PUT, value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Customer> updateCustomer(@PathVariable Long id, @RequestBody Customer customer) {
+    public ResponseEntity<Customer> updateCustomer(@PathVariable Long id, @Valid @RequestBody Customer customer) {
         service.update(id, customer);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

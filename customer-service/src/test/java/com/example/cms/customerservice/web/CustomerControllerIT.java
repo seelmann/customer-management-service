@@ -196,6 +196,22 @@ public class CustomerControllerIT {
     }
 
     @Test
+    public void testPostInvalidDataShouldReturn400() {
+        // age too low, empty email, missing address
+        Customer customer = new Customer("John", "Smith", 5, "", DemoData.a1(), null);
+
+        given(spec)
+        .when()
+            .contentType("application/json")
+            .body(customer)
+            .post("/customers")
+        .then()
+            .statusCode(400)
+            .header("Content-Length", "0")
+        ;
+    }
+
+    @Test
     public void testPutOK() {
         Customer original = DemoData.c1();
         Long id = repository.save(original).getId();
@@ -214,7 +230,7 @@ public class CustomerControllerIT {
         // assert the customer was updated in DB
         assertEqual(modified, repository.findOne(id));
 
-        // assert the modificated customer can be retrieved via API
+        // assert the modified customer can be retrieved via API
         Customer receivedCustomer = 
         given(spec)
         .when()

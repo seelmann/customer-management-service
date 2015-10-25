@@ -1,10 +1,16 @@
 package com.example.cms.customerservice.domain;
 
+import org.hibernate.validator.constraints.NotBlank;
+
 public class Address {
 
+    @NotBlank
     private String street;
+    @NotBlank
     private String city;
+    @NotBlank
     private String zipCode;
+    @NotBlank
     private String country;
 
     Address() {

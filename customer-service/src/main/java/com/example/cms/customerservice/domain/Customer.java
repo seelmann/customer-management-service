@@ -8,6 +8,10 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
+import org.hibernate.validator.constraints.Email;
+import org.hibernate.validator.constraints.NotBlank;
+import org.hibernate.validator.constraints.Range;
+
 @Entity
 public class Customer {
 
@@ -15,9 +19,13 @@ public class Customer {
     @GeneratedValue
     private Long id;
 
+    @NotBlank
     private String firstname;
+    @NotBlank
     private String lastname;
+    @Range(min = 18, max = 100)
     private Integer age;
+    @Email
     private String emailAddress;
 
     @Embedded
