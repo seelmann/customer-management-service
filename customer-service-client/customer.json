@@ -1,0 +1,18 @@
+{
+    "firstname": "John",
+    "lastname": "Smith",
+    "age": 42,
+    "emailAddress": "john.smith@example.com",
+    "privateAddress": {
+        "street": "Marienplatz 1",
+        "city": "München",
+        "zipCode": "80331",
+        "country": "DE"
+    },
+    "companyAddress": {
+        "street": "10 Downing Street",
+        "city": "London",
+        "zipCode": "SW1A 2AA",
+        "country": "UK"
+    }
+}
