@@ -3,8 +3,23 @@ mavenJob('customer-service-build') {
     scm {
         github('seelmann/customer-management-service', 'master')
     }
+    triggers {
+        scm('H/5 * * * *')
+    }
     mavenInstallation('Maven 3.3.3')
     rootPOM('customer-service/pom.xml')
+    goals('clean install -Dall-checks')
+}
+mavenJob('customer-sync-build') {
+    logRotator(-1, 10)
+    scm {
+        github('seelmann/customer-management-service', 'master')
+    }
+    triggers {
+        scm('H/5 * * * *')
+    }
+    mavenInstallation('Maven 3.3.3')
+    rootPOM('customer-sync/pom.xml')
     goals('clean install -Dall-checks')
 }
 freeStyleJob('customer-service-deploy') {
